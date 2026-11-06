@@ -1,4 +1,4 @@
-# Argumentation Engine
+# Assignment 3: Argumentation Engine
 
 A small, dependency-free Python implementation of Dung-style abstract argumentation frameworks, following the definitions of
 Chapter 5 ("Argumentation among Agents", I. Rahwan) of *Multiagent Systems*, 2nd ed., G. Weiss (ed.), MIT Press, 2013. It can
@@ -7,6 +7,8 @@ and the grounded extension.
 
 * Python 3.9+, **standard library only** (no installation step).
 * `pytest` is optional; the tests also run with `unittest`.
+* `strategic.py` implements the grounded direct mechanism, best responses,
+  Theorems 5.3 and 5.4, and the random experiments.
 
 ## Repository layout
 
@@ -18,6 +20,7 @@ and the grounded extension.
 | `demo_output.txt` | Saved output of `python demo.py` |
 | `tests/test_af.py` | 38 tests: unit tests, every statement the book makes about its figures, cross-checks against a naive oracle |
 | `REPORT.md` | Report: definitions, design, algorithms, results on the book's examples, testing |
+| `strategic.py` | Strategic argumentation mechanism, strategyproofness checks and experiments |
 
 ## Quick start
 
@@ -52,7 +55,7 @@ framework first, e.g. `from af import is_conflict_free; is_conflict_free(af, S)`
 
 | Task | Where |
 |---|---|
-| 1. Framework class ⟨A, ⇀⟩ | `ArgumentationFramework(arguments, attacks)` (Definition 5.1; validates that attacks only mention known arguments) |
+| 1. Framework class ⟨A, ⇀⟩ | `ArgumentationFramework(arguments, attacks)` with `attackers(a)` and `attacked_by(a)` (Definition 5.1; validates that attacks only mention known arguments) |
 | 2. Conflict-free test | `is_conflict_free(S)` (Definition 5.2) |
 | 3. Is an argument defended by S | `is_defended(a, S)` (Definition 5.2) |
 | 4. Characteristic function | `characteristic(S)` -> F(S) (Definition 5.3) |
@@ -89,6 +92,24 @@ framework first, e.g. `from af import is_conflict_free; is_conflict_free(af, S)`
 python demo.py                                   # demonstration (writes to stdout)
 python -m unittest discover -s tests -t . -v     # tests, standard library
 pytest                                           # tests, if pytest is installed
+```
+
+The strategic API uses a mapping from agent identifiers to their true
+argument sets:
+
+```python
+from strategic import grounded_mechanism, best_responses, is_strategyproof
+
+reports = {"agent1": {"a1", "a2"}, "agent2": {"a3"}}
+grounded_mechanism([("a1", "a2"), ("a2", "a3")], reports)
+best_responses({"a1", "a2"}, [("a1", "a2")], {"agent2": {"a3"}}, "agent1")
+is_strategyproof(reports, [("a1", "a2"), ("a2", "a3")])
+```
+
+Run the strategic experiment driver with:
+
+```bash
+python -c "from strategic import run_experiments; print(run_experiments())"
 ```
 
 ## Tests and validation

@@ -242,6 +242,10 @@ class ArgumentationFramework:
         self._check_arg(a)
         return self._targets[a]
 
+    def attacked_by(self, a: Argument) -> ArgSet:
+        """The arguments attacked by ``a`` (assignment-compatible alias)."""
+        return self.targets(a)
+
     def attacked_by_set(self, S: Iterable[Argument]) -> ArgSet:
         """S+ : every argument attacked by some member of S."""
         S = self._as_set(S)

@@ -11,6 +11,7 @@ Section B  the book's example graphs (Figures 5.1-5.5): extensions under every
            semantics, all legal labellings, acceptance statuses, and the
            statements the book makes about each figure.
 Section C  further frameworks covering corner cases.
+Section D  the grounded direct mechanism and Theorem 5.4 condition.
 
 Book: G. Weiss (ed.), Multiagent Systems, 2nd ed., MIT Press 2013, Chapter 5.
 The argument alpha_i of the book is written a<i>.
@@ -19,6 +20,7 @@ Output of a full run is saved in demo_output.txt.
 
 from af import ArgumentationFramework, format_set, format_sets
 from examples import BOOK_EXAMPLES, EXTRA_EXAMPLES
+from strategic import grounded_mechanism, is_strategyproof, theorem_5_4_condition
 
 
 def banner(text: str) -> None:
@@ -113,6 +115,13 @@ def main() -> None:
     banner("Section C - further frameworks (corner cases)")
     for ex in EXTRA_EXAMPLES.values():
         show_example(ex)
+    banner("Section D - strategic argumentation")
+    attacks = [("a1", "a2"), ("a2", "a3"), ("a3", "a4")]
+    reports = {"agent1": {"a1", "a2"}, "agent2": {"a3", "a4"}}
+    print(f"reports: {reports}")
+    print(f"grounded direct-mechanism outcome: {format_set(grounded_mechanism(attacks, reports))}")
+    print(f"Theorem 5.4 condition holds: {theorem_5_4_condition(reports, attacks)}")
+    print(f"mechanism is strategyproof: {is_strategyproof(reports, attacks)}")
 
 
 if __name__ == "__main__":

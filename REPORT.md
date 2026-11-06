@@ -1,5 +1,48 @@
 # Report: Argumentation Engine
 
+## 0. Assignment coverage
+
+This repository includes both halves of Assignment 3. `af.py` implements the
+abstract argumentation engine and `strategic.py` implements the grounded direct
+argumentation mechanism. Tests cover the book examples, mechanism outcomes,
+best responses, Theorem 5.3 truthfulness, and the odd-path strategyproofness
+condition from Theorem 5.4. `demo.py` prints the engine results and a strategic
+mechanism example; `run_experiments()` produces the required random-instance
+statistics.
+
+## 0.1 Strategic mechanism
+
+For reports \(R_i\), the mechanism constructs the induced framework on
+\(\bigcup_i R_i\), retaining only attacks whose endpoints are revealed, and
+returns its grounded extension. An agent's utility is the number of arguments
+from its true set in that extension. `best_responses()` enumerates every
+subset of an agent's true arguments while holding the other reports fixed.
+`truthfulness_is_best_response()` checks Theorem 5.3 directly for every
+combination of reports by the other agents.
+
+`theorem_5_4_condition()` checks the sufficient condition from Theorem 5.4:
+no agent owns two arguments joined by an odd-length directed path. Odd paths
+are detected in a graph whose states include path parity, so cycles terminate
+correctly. `is_strategyproof()` performs the direct best-response check rather
+than incorrectly treating the sufficient condition as necessary.
+
+With seed 3, 1,000 random instances per attack probability, six to eight
+arguments, and three random agents produced:
+
+| Attack probability | Strategyproof | Odd-path condition | Condition true but not strategyproof | Strategyproof but condition fails |
+|---:|---:|---:|---:|---:|
+| 0.1 | 0.722 | 0.227 | 0 | 495 |
+| 0.3 | 0.163 | 0.004 | 0 | 159 |
+| 0.5 | 0.098 | 0.000 | 0 | 98 |
+| 0.7 | 0.156 | 0.000 | 0 | 156 |
+| 0.9 | 0.533 | 0.000 | 0 | 533 |
+
+No instance satisfied the sufficient condition while failing strategyproofness.
+Many instances were strategyproof even though the condition failed; this is
+expected because Theorem 5.4 is sufficient, not necessary. Representative
+counterexamples, including both the agent partition and attack relation, are
+retained by the `ExperimentResult` objects returned by `run_experiments()`.
+
 ## 1. Overview
 
 This project implements Dung's abstract argumentation frameworks (AFs) in Python (`af.py`, standard library only), following

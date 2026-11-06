@@ -409,3 +409,11 @@ arguments: {a, b, c}    attacks: a->b, b->a, c->c
     c: rejected
 
   matches the expected results: True
+
+========================================================================
+Section D - strategic argumentation
+========================================================================
+reports: {'agent1': {'a1', 'a2'}, 'agent2': {'a3', 'a4'}}
+grounded direct-mechanism outcome: {a1, a3}
+Theorem 5.4 condition holds: False
+mechanism is strategyproof: True
