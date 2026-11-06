@@ -1,0 +1,411 @@
+
+========================================================================
+Section A - building blocks on the book's Figure 5.1
+========================================================================
+a2 -> a1, a4 -> a1, a3 -> a2, a5 -> a4
+
+Conflict-free?
+  {}               -> True
+  {a3, a5}         -> True
+  {a1, a3, a5}     -> True
+  {a1, a2}         -> False
+  {a2, a3}         -> False
+
+Defended by S?  (book: '{a3, a5} defends a1')
+  a1 defended by {a3, a5}   -> True
+  a1 defended by {a3}       -> False
+  a3 defended by {}         -> True
+  a2 defended by {a1}       -> False
+
+Characteristic function F(S)  (book, Example 5.6: F({a3}) = F({a5}) = {a3, a5})
+  F({}) = {a3, a5}
+  F({a3}) = {a3, a5}
+  F({a5}) = {a3, a5}
+  F({a3, a5}) = {a1, a3, a5}
+  F({a1, a3, a5}) = {a1, a3, a5}
+
+Admissible / complete?  (book, Examples 5.5 and 5.6)
+  {}               admissible=True   complete=False
+  {a3}             admissible=True   complete=False
+  {a5}             admissible=True   complete=False
+  {a3, a5}         admissible=True   complete=False
+  {a1, a3, a5}     admissible=True   complete=True
+  {a1}             admissible=False  complete=False
+
+Grounded extension by iterating F from the empty set  (book, Section 3)
+  F^1({}) = {a3, a5}
+  F^2({}) = {a1, a3, a5}
+  F^3({}) = {a1, a3, a5}
+  fixed point reached -> grounded = {a1, a3, a5}
+
+========================================================================
+Section B - example graphs from the book (Chapter 5)
+========================================================================
+
+========================================================================
+book_fig_5_1
+========================================================================
+Figure 5.1 'A simple argument graph': a1 has two defeaters a2 and a4, which are themselves defeated by a3 and a5 respectively.
+source: Figure 5.1; Examples 5.5, 5.6, 5.8; grounded iteration in Section 3
+arguments: {a1, a2, a3, a4, a5}    attacks: a2->a1, a3->a2, a4->a1, a5->a4
+
+  grounded    : {a1, a3, a5}
+  complete    : {a1, a3, a5}
+  preferred   : {a1, a3, a5}
+  stable      : {a1, a3, a5}
+  semi-stable : {a1, a3, a5}
+
+  legal labellings (1):
+    in={a1, a3, a5} out={a2, a4} undec={}
+
+  acceptance status (preferred semantics):
+    a1: skeptically accepted
+    a2: rejected
+    a3: skeptically accepted
+    a4: rejected
+    a5: skeptically accepted
+
+  what the book states (all checked in tests/test_af.py):
+    - {a3, a5} defends a1 (after Definition 5.2)
+    - Example 5.5: {}, {a3}, {a5}, {a3, a5} and {a1, a3, a5} are admissible
+    - Example 5.6: {a3, a5} is admissible but not complete (it defends a1)
+    - Example 5.6: F({a3}) = F({a5}) = {a3, a5}; {a1, a3, a5} is the only complete extension
+    - Grounded by iteration: F^1 = {a3, a5}, F^2 = {a1, a3, a5}, F^3 = F^2
+    - Example 5.8: {a1, a3, a5} is the only preferred extension
+
+  matches the expected results: True
+
+========================================================================
+book_fig_5_2
+========================================================================
+Figure 5.2 'Graph with three labelings/complete extensions': a1 and a2 defeat each other; a3 is not involved in any defeat.
+source: Figure 5.2; Examples 5.7, 5.8; grounded remark in Section 3
+arguments: {a1, a2, a3}    attacks: a1->a2, a2->a1
+
+  grounded    : {a3}
+  complete    : {a3}, {a1, a3}, {a2, a3}
+  preferred   : {a1, a3}, {a2, a3}
+  stable      : {a1, a3}, {a2, a3}
+  semi-stable : {a1, a3}, {a2, a3}
+
+  legal labellings (3):
+    in={a3} out={} undec={a1, a2}
+    in={a1, a3} out={a2} undec={}
+    in={a2, a3} out={a1} undec={}
+
+  acceptance status (preferred semantics):
+    a1: credulously accepted
+    a2: credulously accepted
+    a3: skeptically accepted
+
+  what the book states (all checked in tests/test_af.py):
+    - Example 5.7: three complete extensions {a3}, {a1, a3}, {a2, a3}
+    - Figure 5.2: labellings L^G (a1, a2 undec; a3 in), L1 (a1 in, a2 out, a3 in), L2 (a2 in, a1 out, a3 in)
+    - The grounded extension is {a3}, the minimal complete extension
+    - Example 5.8: two preferred extensions {a1, a3} and {a2, a3}
+
+  matches the expected results: True
+
+========================================================================
+book_fig_5_3
+========================================================================
+Figure 5.3(i) (Example 5.9, dispute trees): b defeats a; c and d defeat b; c and d defeat each other; e defeats d.
+source: Figure 5.3(i); Example 5.9
+arguments: {a, b, c, d, e}    attacks: b->a, c->b, c->d, d->b, d->c, e->d
+
+  grounded    : {a, c, e}
+  complete    : {a, c, e}
+  preferred   : {a, c, e}
+  stable      : {a, c, e}
+  semi-stable : {a, c, e}
+
+  legal labellings (1):
+    in={a, c, e} out={b, d} undec={}
+
+  acceptance status (preferred semantics):
+    a: skeptically accepted
+    b: rejected
+    c: skeptically accepted
+    d: rejected
+    e: skeptically accepted
+
+  what the book states (all checked in tests/test_af.py):
+    - Figure 5.3(iii): PRO has a winning strategy for a (a is acceptable)
+
+  matches the expected results: True
+
+========================================================================
+book_fig_5_4a
+========================================================================
+Figure 5.4(a) / Example 5.10, everything revealed: R = {(a1,a2), (a2,a3), (a3,a4), (a3,a5)}.
+source: Figure 5.4(a); Example 5.10
+arguments: {a1, a2, a3, a4, a5}    attacks: a1->a2, a2->a3, a3->a4, a3->a5
+
+  grounded    : {a1, a3}
+  complete    : {a1, a3}
+  preferred   : {a1, a3}
+  stable      : {a1, a3}
+  semi-stable : {a1, a3}
+
+  legal labellings (1):
+    in={a1, a3} out={a2, a4, a5} undec={}
+
+  acceptance status (preferred semantics):
+    a1: skeptically accepted
+    a2: rejected
+    a3: skeptically accepted
+    a4: rejected
+    a5: rejected
+
+  what the book states (all checked in tests/test_af.py):
+    - Example 5.10: the grounded outcome is o = {a1, a3}
+
+  matches the expected results: True
+
+========================================================================
+book_fig_5_4b
+========================================================================
+Figure 5.4(b) / Example 5.10 with a1 withheld: a2 -> a3, a3 -> a4, a3 -> a5.
+source: Figure 5.4(b); Example 5.10
+arguments: {a2, a3, a4, a5}    attacks: a2->a3, a3->a4, a3->a5
+
+  grounded    : {a2, a4, a5}
+  complete    : {a2, a4, a5}
+  preferred   : {a2, a4, a5}
+  stable      : {a2, a4, a5}
+  semi-stable : {a2, a4, a5}
+
+  legal labellings (1):
+    in={a2, a4, a5} out={a3} undec={}
+
+  acceptance status (preferred semantics):
+    a2: skeptically accepted
+    a3: rejected
+    a4: skeptically accepted
+    a5: skeptically accepted
+
+  what the book states (all checked in tests/test_af.py):
+    - Example 5.10: withholding a1 gives the outcome o' = {a2, a4, a5}
+
+  matches the expected results: True
+
+========================================================================
+book_fig_5_5
+========================================================================
+Figure 5.5 / Example 5.11: Example 5.10 plus argument a6 with a6 -> a3.
+source: Figure 5.5; Example 5.11
+arguments: {a1, a2, a3, a4, a5, a6}    attacks: a1->a2, a2->a3, a3->a4, a3->a5, a6->a3
+
+  grounded    : {a1, a4, a5, a6}
+  complete    : {a1, a4, a5, a6}
+  preferred   : {a1, a4, a5, a6}
+  stable      : {a1, a4, a5, a6}
+  semi-stable : {a1, a4, a5, a6}
+
+  legal labellings (1):
+    in={a1, a4, a5, a6} out={a2, a3} undec={}
+
+  acceptance status (preferred semantics):
+    a1: skeptically accepted
+    a2: rejected
+    a3: rejected
+    a4: skeptically accepted
+    a5: skeptically accepted
+    a6: skeptically accepted
+
+  what the book states (all checked in tests/test_af.py):
+    - Example 5.11: under full revelation the outcome is o = {a1, a4, a5, a6}
+
+  matches the expected results: True
+
+========================================================================
+Section C - further frameworks (corner cases)
+========================================================================
+
+========================================================================
+mutual_attack
+========================================================================
+Two arguments attacking each other: a <-> b.
+arguments: {a, b}    attacks: a->b, b->a
+
+  grounded    : {}
+  complete    : {}, {a}, {b}
+  preferred   : {a}, {b}
+  stable      : {a}, {b}
+  semi-stable : {a}, {b}
+
+  legal labellings (3):
+    in={} out={} undec={a, b}
+    in={a} out={b} undec={}
+    in={b} out={a} undec={}
+
+  acceptance status (preferred semantics):
+    a: credulously accepted
+    b: credulously accepted
+
+  matches the expected results: True
+
+========================================================================
+chain
+========================================================================
+A chain a -> b -> c: acceptance propagates down the chain.
+arguments: {a, b, c}    attacks: a->b, b->c
+
+  grounded    : {a, c}
+  complete    : {a, c}
+  preferred   : {a, c}
+  stable      : {a, c}
+  semi-stable : {a, c}
+
+  legal labellings (1):
+    in={a, c} out={b} undec={}
+
+  acceptance status (preferred semantics):
+    a: skeptically accepted
+    b: rejected
+    c: skeptically accepted
+
+  matches the expected results: True
+
+========================================================================
+odd_cycle
+========================================================================
+Three-cycle a -> b -> c -> a: nothing can be accepted; no stable extension.
+arguments: {a, b, c}    attacks: a->b, b->c, c->a
+
+  grounded    : {}
+  complete    : {}
+  preferred   : {}
+  stable      : none
+  semi-stable : {}
+
+  legal labellings (1):
+    in={} out={} undec={a, b, c}
+
+  acceptance status (preferred semantics):
+    a: rejected
+    b: rejected
+    c: rejected
+
+  matches the expected results: True
+
+========================================================================
+even_cycle
+========================================================================
+Four-cycle a -> b -> c -> d -> a: two alternating extensions.
+arguments: {a, b, c, d}    attacks: a->b, b->c, c->d, d->a
+
+  grounded    : {}
+  complete    : {}, {a, c}, {b, d}
+  preferred   : {a, c}, {b, d}
+  stable      : {a, c}, {b, d}
+  semi-stable : {a, c}, {b, d}
+
+  legal labellings (3):
+    in={} out={} undec={a, b, c, d}
+    in={a, c} out={b, d} undec={}
+    in={b, d} out={a, c} undec={}
+
+  acceptance status (preferred semantics):
+    a: credulously accepted
+    b: credulously accepted
+    c: credulously accepted
+    d: credulously accepted
+
+  matches the expected results: True
+
+========================================================================
+self_attack_defended
+========================================================================
+a attacks itself and b; c attacks a, so c reinstates b.
+arguments: {a, b, c}    attacks: a->a, a->b, c->a
+
+  grounded    : {b, c}
+  complete    : {b, c}
+  preferred   : {b, c}
+  stable      : {b, c}
+  semi-stable : {b, c}
+
+  legal labellings (1):
+    in={b, c} out={a} undec={}
+
+  acceptance status (preferred semantics):
+    a: rejected
+    b: skeptically accepted
+    c: skeptically accepted
+
+  matches the expected results: True
+
+========================================================================
+diamond
+========================================================================
+a <-> b, and both attack c (a classic 'Nixon diamond' shape).
+arguments: {a, b, c}    attacks: a->b, a->c, b->a, b->c
+
+  grounded    : {}
+  complete    : {}, {a}, {b}
+  preferred   : {a}, {b}
+  stable      : {a}, {b}
+  semi-stable : {a}, {b}
+
+  legal labellings (3):
+    in={} out={} undec={a, b, c}
+    in={a} out={b, c} undec={}
+    in={b} out={a, c} undec={}
+
+  acceptance status (preferred semantics):
+    a: credulously accepted
+    b: credulously accepted
+    c: rejected
+
+  matches the expected results: True
+
+========================================================================
+preferred_not_semi_stable
+========================================================================
+a <-> b, b -> c, and the odd cycle c -> d -> e -> c.  {a} is preferred but not semi-stable: its range {a, b} is strictly smaller than the range of {b, d}, which is the only stable / semi-stable extension.
+arguments: {a, b, c, d, e}    attacks: a->b, b->a, b->c, c->d, d->e, e->c
+
+  grounded    : {}
+  complete    : {}, {a}, {b, d}
+  preferred   : {a}, {b, d}
+  stable      : {b, d}
+  semi-stable : {b, d}
+
+  legal labellings (3):
+    in={} out={} undec={a, b, c, d, e}
+    in={a} out={b} undec={c, d, e}
+    in={b, d} out={a, c, e} undec={}
+
+  acceptance status (preferred semantics):
+    a: credulously accepted
+    b: credulously accepted
+    c: rejected
+    d: credulously accepted
+    e: rejected
+
+  matches the expected results: True
+
+========================================================================
+no_stable_but_semi_stable
+========================================================================
+a <-> b plus a self-attacker c that nobody else attacks.  c can never be attacked by an extension, so there is no stable extension, yet semi-stable extensions exist (as they always do).
+arguments: {a, b, c}    attacks: a->b, b->a, c->c
+
+  grounded    : {}
+  complete    : {}, {a}, {b}
+  preferred   : {a}, {b}
+  stable      : none
+  semi-stable : {a}, {b}
+
+  legal labellings (3):
+    in={} out={} undec={a, b, c}
+    in={a} out={b} undec={c}
+    in={b} out={a} undec={c}
+
+  acceptance status (preferred semantics):
+    a: credulously accepted
+    b: credulously accepted
+    c: rejected
+
+  matches the expected results: True
