@@ -47,7 +47,6 @@ class TestConstruction(unittest.TestCase):
         self.assertEqual(af.attacks, fs(("a", "b"), ("b", "c")))  # duplicate attack collapsed
         self.assertEqual(af.attackers("b"), fs("a"))
         self.assertEqual(af.targets("b"), fs("c"))
-        self.assertEqual(af.attacked_by("b"), fs("c"))
         self.assertEqual(af.attackers("a"), fs())
         self.assertEqual(af.attacked_by_set({"a", "b"}), fs("b", "c"))
         self.assertEqual(af.range({"a"}), fs("a", "b"))

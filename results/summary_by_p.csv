@@ -1,0 +1,9 @@
+p,instances,strategyproof,fraction_strategyproof,condition_holds,fraction_condition_holds,condition_holds_not_strategyproof,strategyproof_condition_fails,direct_conflict,indirect_trade_off,indirect_inert,not_strategyproof_condition_fails,no_attacks,holds_not_sp_simple_paths,holds_not_sp_incl_same,holds_not_sp_simple_incl_same,readings_differ
+0.05,1000,940,0.94,498,0.498,0,442,438,3,1,60,133,0,0,0,0
+0.1,1000,801,0.801,238,0.238,0,563,554,6,3,199,17,0,0,0,0
+0.2,1000,437,0.437,46,0.046,0,391,378,6,7,563,0,0,0,0,0
+0.3,1000,199,0.199,11,0.011,0,188,181,1,6,801,0,0,0,0,0
+0.4,1000,68,0.068,2,0.002,0,66,65,1,0,932,0,0,0,0,0
+0.5,1000,27,0.027,0,0.0,0,27,27,0,0,973,0,0,0,0,0
+0.6,1000,15,0.015,0,0.0,0,15,13,1,1,985,0,0,0,0,0
+all,7000,2487,0.35528571428571426,795,0.11357142857142857,0,1692,1656,18,18,4513,150,0,0,0,0

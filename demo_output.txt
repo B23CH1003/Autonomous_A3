@@ -411,9 +411,128 @@ arguments: {a, b, c}    attacks: a->b, b->a, c->c
   matches the expected results: True
 
 ========================================================================
-Section D - strategic argumentation
+Section D - strategic argumentation (grounded direct mechanism)
 ========================================================================
-reports: {'agent1': {'a1', 'a2'}, 'agent2': {'a3', 'a4'}}
-grounded direct-mechanism outcome: {a1, a3}
-Theorem 5.4 condition holds: False
-mechanism is strategyproof: True
+Each agent reveals a subset of its arguments; the outcome is the grounded extension of the
+graph induced by the union of the revealed arguments; an agent's utility is the number
+of its own arguments in the outcome.  Agents are x, y, z.
+
+========================================================================
+example_5_10
+========================================================================
+Example 5.10 / Figure 5.4: hiding an argument is beneficial.  x owns {a1, a4, a5}, y owns {a2}, z owns {a3}; a1 -> a2 -> a3 -> a4, a3 -> a5.
+defeats: a1->a2, a2->a3, a3->a4, a3->a5
+  agent x owns {a1, a4, a5}
+  agent y owns {a2}
+  agent z owns {a3}
+
+  everybody reveals everything -> outcome {a1, a3}
+    u_x(o, {a1, a4, a5}) = 1
+    u_y(o, {a2}) = 0
+    u_z(o, {a3}) = 1
+
+  best response of each agent when the others reveal everything:
+    agent x: reveal {a4, a5}  (utility 2; truthful is a best response: False)
+    agent y: reveal {} or {a2}  (utility 0; truthful is a best response: True)
+    agent z: reveal {a3}  (utility 1; truthful is a best response: True)
+
+  Theorem 5.3 check (truth is a best response against every combination): False
+    96 situations examined; agents who can gain by hiding: ['x']
+    e.g. agent 0 hides {a1} when agent 1 reveals {a2}; agent 2 reveals {a3}: utility 1 -> 2 (outcome {a1, a3} -> {a2, a4, a5})
+  Theorem 5.4 condition (no agent owns two arguments joined by an odd path): False
+    agent x: a1 indirectly defeats a4
+    agent x: a1 indirectly defeats a5
+
+  what the book states (all checked in tests/test_strategic.py):
+    - full revelation gives the outcome o = {a1, a3}
+    - u_x(o, {a1, a4, a5}) = 1; u_y(o, {a2}) = 0; u_z(o, {a3}) = 1 (book prints y and z swapped)
+    - for y and z, revealing their true types weakly dominates revealing nothing
+    - x is better off revealing {a4, a5}: the outcome becomes {a2, a4, a5} and u_x = 2
+    - so the mechanism is not strategyproof
+
+  for y and z revealing their true types weakly dominates revealing nothing: True True
+  x withholds a1 -> outcome {a2, a4, a5} and u_x = 2  (Figure 5.4(b))
+
+========================================================================
+example_5_11
+========================================================================
+Example 5.11 / Figure 5.5: Example 5.10 plus argument a6 owned by x, with a6 -> a3.  Truth revelation is a dominant strategy for x although a1 indirectly defeats a4 and a5.
+defeats: a1->a2, a2->a3, a3->a4, a3->a5, a6->a3
+  agent x owns {a1, a4, a5, a6}
+  agent y owns {a2}
+  agent z owns {a3}
+
+  everybody reveals everything -> outcome {a1, a4, a5, a6}
+    u_x(o, {a1, a4, a5, a6}) = 4
+    u_y(o, {a2}) = 0
+    u_z(o, {a3}) = 0
+
+  best response of each agent when the others reveal everything:
+    agent x: reveal {a1, a4, a5, a6}  (utility 4; truthful is a best response: True)
+    agent y: reveal {} or {a2}  (utility 0; truthful is a best response: True)
+    agent z: reveal {} or {a3}  (utility 0; truthful is a best response: True)
+
+  Theorem 5.3 check (truth is a best response against every combination): True
+    192 situations examined; agents who can gain by hiding: none
+  Theorem 5.4 condition (no agent owns two arguments joined by an odd path): False
+    agent x: a1 indirectly defeats a4
+    agent x: a1 indirectly defeats a5
+
+  what the book states (all checked in tests/test_strategic.py):
+    - full revelation gives the outcome o = {a1, a4, a5, a6}
+    - truth revelation is a dominant strategy for x (all of its arguments are accepted)
+    - this holds although a1 indirectly defeats a4 and a5
+    - the argument that cancels the indirect self-defeat is a6 (book prints a5)
+
+  the role of a6 (it defeats a3, so a3 can no longer pass a2's defeat on to a4 and a5):
+    with a6 -> a3:    truth is a best response for everybody: True
+    without a6 -> a3: truth is a best response for everybody: False
+
+========================================================================
+Section E - random experiments
+========================================================================
+A short run: attack probabilities 0.1, 0.3, 0.5; 60 instances each, 6-8 arguments,
+3 agents (the full experiment, 7 probabilities x 1000 instances: python experiments.py).
+
+| p | instances | strategyproof | fraction strategyproof | condition holds | condition holds, not strategyproof | strategyproof, condition fails |
+|---|---|---|---|---|---|---|
+| 0.1 | 60 | 47 | 0.783 | 15 (0.250) | 0 | 32 |
+| 0.3 | 60 | 10 | 0.167 | 0 (0.000) | 0 | 10 |
+| 0.5 | 60 | 5 | 0.083 | 0 (0.000) | 0 | 5 |
+| all | 180 | 62 | 0.344 | 15 (0.083) | 0 | 47 |
+
+  instances where the condition holds but the mechanism is not strategyproof: 0
+
+Strategyproof although the Theorem 5.4 condition fails - four instances from the full run:
+
+  instance 9: a direct defeat inside one agent's own arguments (a swap)
+    agents own {a1,a2,a3} | {a4,a5,a6} | {};  defeats: a5>a6
+    odd paths between one agent's arguments: 1:a5>a6;  strategyproof: True
+      agent 1 reveals {a4, a5, a6}           -> outcome {a1, a2, a3, a4, a5}       utility 2
+      agent 1 reveals {a4, a6}               -> outcome {a1, a2, a3, a4, a6}       utility 2
+      agent 1 reveals {a4, a5}               -> outcome {a1, a2, a3, a4, a5}       utility 2
+    why: a5 -> a6: hiding a5 frees a6 but loses a5, hiding a6 keeps a5: always 2 accepted, so no gain.
+
+  instance 30: an odd path of length 3 that only swaps a3 for a1
+    agents own {a4} | {a1,a2,a3,a6} | {a5};  defeats: a3>a5 a4>a1 a5>a4
+    odd paths between one agent's arguments: 1:a3>a1;  strategyproof: True
+      agent 1 reveals {a1, a2, a3, a6}       -> outcome {a2, a3, a4, a6}           utility 3
+      agent 1 reveals {a1, a2, a6}           -> outcome {a1, a2, a5, a6}           utility 3
+      agent 1 reveals {a2, a3, a6}           -> outcome {a2, a3, a4, a6}           utility 3
+    why: a3 -> a5 -> a4 -> a1: a3 accepted <=> a1 defeated, so hiding a3 trades it for a1.
+
+  instance 1098: the odd path ends in a mutual defeat that stays undecided
+    agents own {a2,a5} | {a3,a4} | {a1,a6};  defeats: a1>a4 a1>a5 a2>a6 a3>a5 a4>a1 a5>a1
+    odd paths between one agent's arguments: 1:a3>a4;  strategyproof: True
+      agent 1 reveals {a3, a4}               -> outcome {a2, a3}                   utility 1
+      agent 1 reveals {a4}                   -> outcome {a2}                       utility 0
+      agent 1 reveals {a3}                   -> outcome {a1, a2, a3}               utility 1
+    why: a3 -> a5 -> a1 -> a4, but a4 <-> a1 and a5 <-> a1 are mutual defeats: a4 is undecided either way.
+
+  instance 8: the end of the odd path is defeated whatever happens
+    agents own {a3,a5} | {a2,a4,a6} | {a1};  defeats: a1>a4 a1>a5 a1>a6 a2>a1 a5>a6
+    odd paths between one agent's arguments: 1:a2>a6;  strategyproof: True
+      agent 1 reveals {a2, a4, a6}           -> outcome {a2, a3, a4, a5}           utility 2
+      agent 1 reveals {a4, a6}               -> outcome {a1, a3}                   utility 0
+      agent 1 reveals {a2, a4}               -> outcome {a2, a3, a4, a5}           utility 2
+    why: a2 -> a1 -> a5 -> a6 is odd, but if a1 is out then a5 defeats a6, and if a1 is in it defeats a6 itself.
